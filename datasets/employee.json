@@ -1,0 +1,23 @@
+{
+  "EmployeeID": 123,
+  "Name": {
+    "First": "John",
+    "Last": "Doe"
+  },
+ "ContactInfo": {
+    "Email": "john.doe@example.com",
+    "Phone": "1234567890",
+    "Address": {
+      "Street": "123 Main St",
+      "City": "New York",
+      "State": "NY",
+      "ZipCode": "10001",
+      "PreviousAddresses": [
+        "456 Elm St",
+        "789 Oak St"
+      ]
+    }
+  },
+  "Department": "Engineering",
+  "Salary": 120000
+}
