@@ -1,5 +1,6 @@
 package com.codewithz.rdd;
 
+import com.codewithz.model.Employee;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.SparkSession;
@@ -30,6 +31,23 @@ public class CreatingRDDFromCollection {
         List<Integer> output=rdd.collect();
 
         System.out.println("Output:"+output);
+
+        System.out.println("-------------------------------------------------------");
+
+        List<Employee> employeeList=Arrays.asList(
+                new Employee(1,"Alex",10000),
+                new Employee(2,"Mike",20000),
+                new Employee(3,"John",30000),
+                new Employee(4,"Rick",40000),
+                new Employee(5,"Eli",50000)
+        );
+
+        JavaRDD<Employee> employeeRDD=context.parallelize(employeeList);
+
+        List<Employee> employees=employeeRDD.collect();
+        System.out.println("Employees:"+employees);
+
+        
 
 
         try (final var scanner = new Scanner(System.in)) {
