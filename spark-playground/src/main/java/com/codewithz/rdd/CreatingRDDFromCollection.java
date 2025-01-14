@@ -47,7 +47,7 @@ public class CreatingRDDFromCollection {
         List<Employee> employees=employeeRDD.collect();
         System.out.println("Employees:"+employees);
 
-        
+
 
 
         try (final var scanner = new Scanner(System.in)) {

@@ -9,44 +9,39 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-public class CreatingRDDFromCollection {
+public class CreatingRDDFromFile {
 
     public static void main(String[] args) {
 
         SparkSession spark = SparkSession
                 .builder()
-                .appName("RDD Creation App")
+                .appName("RDD Creation App from File")
                 .master("local[4]")
                 .getOrCreate();
 
-        JavaSparkContext context=JavaSparkContext.fromSparkContext(spark.sparkContext());
+        JavaSparkContext context= JavaSparkContext.fromSparkContext(spark.sparkContext());
 
-        List<Integer> list= Arrays.asList(1,2,3,4,5,6,7,8,9,10);
+        String fileLocation="J:\\Zartab\\CodeWithZAcademy\\Spark\\new-data\\TaxiZones.csv";
 
-        JavaRDD<Integer> rdd=context.parallelize(list);
+        JavaRDD<String> taxiZonesRDD = context.textFile(fileLocation);
 
-        int numberOfPartitions=rdd.getNumPartitions();
-        System.out.println("Number of Partitions: "+numberOfPartitions);
+//        taxiZonesRDD.take(5).forEach(System.out::println);
 
-        List<Integer> output=rdd.collect();
 
-        System.out.println("Output:"+output);
+        JavaRDD<String[]> taxiZonesWithColsRDD=taxiZonesRDD.map(line->line.split(","));
+        //        Filter rows where the index 1 is Manhattan and index 2 starts with Central
 
-        System.out.println("-------------------------------------------------------");
+        JavaRDD<String[]> filteredZoneRDD=taxiZonesWithColsRDD
+                .filter(
+                        zoneRow->zoneRow[1].equals("Manhattan") &&
+                                zoneRow[2].toLowerCase().startsWith("central")
+                );
 
-        List<Employee> employeeList=Arrays.asList(
-                new Employee(1,"Alex",10000),
-                new Employee(2,"Mike",20000),
-                new Employee(3,"John",30000),
-                new Employee(4,"Rick",40000),
-                new Employee(5,"Eli",50000)
-        );
+        List<String[]> filteredTaxiZoneOutput=filteredZoneRDD.collect();
 
-        JavaRDD<Employee> employeeRDD=context.parallelize(employeeList);
-
-        List<Employee> employees=employeeRDD.collect();
-        System.out.println("Employees:"+employees);
-
+        for(String[] zone:filteredTaxiZoneOutput){
+            System.out.println(Arrays.toString(zone));
+        }
 
 
 
