@@ -78,5 +78,13 @@
             <version>8.0.16</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.hbase.connectors.spark/hbase-spark -->
+        <dependency>
+            <groupId>org.apache.hbase.connectors.spark</groupId>
+            <artifactId>hbase-spark</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
+
     </dependencies>
 </project>
