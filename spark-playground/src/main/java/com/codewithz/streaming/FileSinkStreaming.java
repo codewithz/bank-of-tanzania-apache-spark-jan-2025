@@ -7,15 +7,16 @@ import org.apache.spark.sql.streaming.OutputMode;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
+import static org.apache.spark.sql.functions.*;
 
-public class ConsoleSinkStreaming {
+public class FileSinkStreaming {
 
     public static void main(String[] args) {
 
         // Create Spark Session
         SparkSession sparkSession = SparkSession.builder()
                 .master("local")
-                .appName("Console Sink")
+                .appName("File Sink")
                 .getOrCreate();
 
         sparkSession.sparkContext().setLogLevel("ERROR");
@@ -46,18 +47,27 @@ public class ConsoleSinkStreaming {
         fileStreamDF.printSchema();
         System.out.println("---------------------------------------------------");
 
-        Dataset<Row> selectedDF=fileStreamDF.select("*");
+//     Select the columns and rename them
 
-
-//        Write to Console Sink
-        try {
-            selectedDF.writeStream()
+        Dataset<Row> projectedDF=fileStreamDF
+                .select(
+                        col("Date").alias("date"),
+                        col("Country_Code").alias("countryCode"),
+                        col("Sold_Units").alias("soldUnits")
+                );
+        String outputPath="J:\\Zartab\\CodeWithZAcademy\\Spark\\spark-stream-datasets\\historicalDataset\\sinkLocation";
+        String checkpointPath="J:\\Zartab\\CodeWithZAcademy\\Spark\\spark-stream-datasets\\historicalDataset\\sinkLocation\\checkpoint";
+//        Write the output to JSON Sink
+        try{
+            projectedDF.writeStream()
                     .outputMode(OutputMode.Append())
-                    .format("console")
-                    .option("numRows", 10)
+                    .format("json")
+                    .option("path",outputPath)
+                    .option("checkpointLocation",checkpointPath)
                     .start()
                     .awaitTermination();
-        }catch (Exception e) {
+        }
+        catch(Exception e){
             e.printStackTrace();
         }
 

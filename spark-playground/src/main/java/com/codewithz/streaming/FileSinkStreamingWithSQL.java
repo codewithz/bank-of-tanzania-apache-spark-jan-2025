@@ -8,14 +8,16 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
-public class ConsoleSinkStreaming {
+import static org.apache.spark.sql.functions.col;
+
+public class FileSinkStreamingWithSQL {
 
     public static void main(String[] args) {
 
         // Create Spark Session
         SparkSession sparkSession = SparkSession.builder()
                 .master("local")
-                .appName("Console Sink")
+                .appName("File with SQL Sink")
                 .getOrCreate();
 
         sparkSession.sparkContext().setLogLevel("ERROR");
@@ -46,18 +48,32 @@ public class ConsoleSinkStreaming {
         fileStreamDF.printSchema();
         System.out.println("---------------------------------------------------");
 
-        Dataset<Row> selectedDF=fileStreamDF.select("*");
+ // Register the streaming DataFrame as a temporary SQL table
+        fileStreamDF.createOrReplaceTempView("streaming_data");
+
+        // Define a SQL query to process the data
+        String sqlQuery = "SELECT " +
+                "Date AS date, " +
+                "Country_Code AS countryCode, " +
+                "Sold_Units AS totalUnits " +
+                "FROM streaming_data ";
 
 
-//        Write to Console Sink
-        try {
-            selectedDF.writeStream()
+        // Execute the SQL query
+        Dataset<Row> sqlResultDF = sparkSession.sql(sqlQuery);
+        String outputPath="J:\\Zartab\\CodeWithZAcademy\\Spark\\spark-stream-datasets\\historicalDataset\\sinkLocation";
+        String checkpointPath="J:\\Zartab\\CodeWithZAcademy\\Spark\\spark-stream-datasets\\historicalDataset\\sinkLocation\\checkpoint";
+//        Write the output to JSON Sink
+        try{
+            sqlResultDF.writeStream()
                     .outputMode(OutputMode.Append())
-                    .format("console")
-                    .option("numRows", 10)
+                    .format("json")
+                    .option("path",outputPath)
+                    .option("checkpointLocation",checkpointPath)
                     .start()
                     .awaitTermination();
-        }catch (Exception e) {
+        }
+        catch(Exception e){
             e.printStackTrace();
         }
 
